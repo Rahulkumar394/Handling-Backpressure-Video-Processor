@@ -1,0 +1,41 @@
+spring:
+  kafka:
+    bootstrap-servers: kafka:9092
+    consumer:
+      group-id: video-processing-group
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      properties:
+        isolation.level: read_committed
+    listener:
+      ack-mode: MANUAL
+      concurrency: 3  # Multiple threads for parallel processing (optional tuning)
+
+  data:
+    mongodb:
+      uri: mongodb://admin:admin@mongodb:27017/video-processing
+
+management:
+  endpoints:
+    web.exposure.include: "*"
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+
+kafka:
+  lag:
+    threshold: 100
+
+video:
+  kafka:
+    topics:
+      main: video-processing
+      retry: video-processing-retry
+      dlq: video-processing-dlq
+    retry:
+      max-attempts: 3
+      delay-ms: 5000
+      multiplier: 2.0
